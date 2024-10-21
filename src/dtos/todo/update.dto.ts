@@ -1,21 +1,4 @@
-import { IsOptional, IsString, MinLength, MaxLength, IsEnum } from 'class-validator';
-import { StatusEnum } from 'src/enums/status.enum';
-import { TodoValidationMessages } from 'src/validation/todo.validation';
+import { PartialType } from '@nestjs/swagger';
+import { CreateTodoDto } from './create.dto';
 
-
-export class UpdateTodoDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(3, { message: TodoValidationMessages.name.minLength })
-  @MaxLength(10, { message: TodoValidationMessages.name.maxLength })
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(10, { message: TodoValidationMessages.description.minLength })
-  description?: string;
-
-  @IsOptional()
-  @IsEnum(StatusEnum, { message: TodoValidationMessages.status.isEnum })
-  status?: StatusEnum;
-}
+export class UpdateTodoDto extends PartialType(CreateTodoDto){}

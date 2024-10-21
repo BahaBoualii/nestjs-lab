@@ -12,4 +12,3 @@ export const TodoValidationMessages = {
       isEnum: 'The status must be one of the allowed values: PENDING, IN_PROGRESS, COMPLETED.',
     },
   };
-  

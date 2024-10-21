@@ -81,26 +81,33 @@ export class TodoService {
     return statusCount;
   }
 
+  async buildSearchQuery(query: any, search?: string, status?: string) {
+    if (search) {
+        query.andWhere('todo.name LIKE :search OR todo.description LIKE :search', { search: `%${search}%` });
+    }
+    if (status) {
+        query.andWhere('todo.status = :status', { status });
+    }
+  }
+
+  async applyPagination(query: any, page: number, limit: number) {
+    query.skip((page - 1) * limit).take(limit);
+  }
+
   async getAllTodos(search?:string, status?:string, page: number = 1, limit: number = 10) {
     const query = this.todoRepository.createQueryBuilder('todo');
     
-    if (search) {
-      query.andWhere('todo.name LIKE :search OR todo.description LIKE :search', { search: `%${search}%` });
-    }
-
-    if (status) {
-      query.andWhere('todo.status = :status', { status });
-    }
-
-    query.skip((page - 1) * limit).take(limit);
+    await this.buildSearchQuery(query, search, status);
+    
+    await this.applyPagination(query, page, limit);
     
     const [todos, total] = await query.getManyAndCount();
 
     return {
-      todos,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
+        todos,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
     };
   }
 
