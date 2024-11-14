@@ -16,4 +16,7 @@ export class TodoEntity extends BaseEntity {
     default: StatusEnum.PENDING,
   })
   status: StatusEnum;
+
+  @Column({ type: 'text', nullable: true})
+  userId: string;
 }

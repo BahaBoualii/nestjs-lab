@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { validate } from 'class-validator';
 import { CreateTodoDto } from 'src/dtos/todo/create.dto';
@@ -23,29 +23,38 @@ export class TodoService {
     return await this.todoRepository.save(newTodo);
   }
 
-  async addTodo2(createTodoDto: CreateTodoDto): Promise<TodoEntity> {
+  async addTodo2(createTodoDto: CreateTodoDto, userId: string): Promise<TodoEntity> {
     const errors = await validate(createTodoDto);
     if (errors.length > 0) {
       throw errors;
     } else {
       const newTodo = this.todoRepository.create(createTodoDto);
-      return await this.todoRepository.save(newTodo);
+      return await this.todoRepository.save({
+        ...newTodo, 
+        userId: userId});
     }
   }
 
-  async updateTodo(id: number, updateTodoDto: UpdateTodoDto): Promise<TodoEntity> {
+  async updateTodo(id: number, updateTodoDto: UpdateTodoDto, userId: string): Promise<TodoEntity> {
     const todo = await this.todoRepository.findOne({ where: { id } });
 
     if (!todo) {
       throw new NotFoundException(`Todo with id ${id} not found`);
     }
 
+    if (todo.userId !== userId) throw new ForbiddenException('Unauthorized to update this todo');
+
     Object.assign(todo, updateTodoDto);
 
     return await this.todoRepository.save(todo);
   }
 
-  async deleteTodo(id: number) {
+  async deleteTodo(id: number, userId: string) {
+
+    const todo = await this.todoRepository.findOne({ where: { id } });
+
+    if (todo.userId !== userId) throw new ForbiddenException('Unauthorized to update this todo');
+
     await this.todoRepository.softDelete(id);
   }
 
