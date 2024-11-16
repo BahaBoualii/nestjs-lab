@@ -23,11 +23,11 @@ export class Cv extends BaseEntity {
     @Column()
     path: string
 
-    @ManyToOne(() => User, (user) => user.cvs)
+    @ManyToOne(() => User, (user) => user.cvs, { eager: true })
     user: User
 
     @ManyToMany(() => Skill)
-    @JoinTable()
+    @JoinTable({name : "cvskills"})
     skills: Skill[]
 
 }

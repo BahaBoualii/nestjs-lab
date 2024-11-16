@@ -7,11 +7,11 @@ dotenv.config()
 
 export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    const authheader = req.headers['auth-user'];
-    if (!authheader) {
+    const authHeader = req.headers['auth-user'];
+    if (!authHeader) {
       return res.status(401).send('auth-header introuvable');
     }
-    const token = authheader as string;
+    const token = authHeader as string;
     
     try {
       const decodedToken = verify(token, process.env.JWT_SECRET);
@@ -19,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
         req['userId'] = decodedToken['id'];
         next();
       } else {
-        return res.status(401).send('Token Invalide');
+        throw new UnauthorizedException("Token invalide!")
       }
     } catch (e) {
       throw new UnauthorizedException();
